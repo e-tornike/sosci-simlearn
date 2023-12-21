@@ -1,5 +1,7 @@
 import os
 import typer
+import datetime
+import time
 
 import torch
 import pytorch_lightning as pl
@@ -34,14 +36,14 @@ def train(model, train_dataset_path, val_dataset_path, params, output_dir=None):
     if output_dir:
         model.save_servable(os.path.join(output_dir, "servable"))
 
-    metrics = {
-        "rrk": RetrievalReciprocalRank(),
-        "rp@1": RetrievalPrecision(k=1)
-    }
-    sampler = PairSampler()
-    evaluator = Evaluator(metrics, sampler)
-    results = Quaterion.evaluate(evaluator, val_dataset, model.model)
-    print(f"results: {results}")
+    # metrics = {
+    #     "rrk": RetrievalReciprocalRank(),
+    #     "rp@1": RetrievalPrecision(k=1)
+    # }
+    # sampler = PairSampler()
+    # evaluator = Evaluator(metrics, sampler)
+    # results = Quaterion.evaluate(evaluator, val_dataset, model.model)
+    # print(f"results: {results}")
 
 
 def main(
@@ -56,7 +58,8 @@ def main(
     output_dir: str = "",
     ):
     seed_everything(seed, workers=True)
-    output_dir = os.path.join(output_dir, model_name.replace("/", ":")+f"_epochs={max_epochs}")
+    timestamp = datetime.datetime.fromtimestamp(time.time()).strftime("%Y%m%d-%H%M%S")
+    output_dir = os.path.join(output_dir, model_name.replace("/", ":")+f"_epochs={max_epochs}_{timestamp}")
 
     sosci_model = SoSciModel(model_name=model_name)
     train(
