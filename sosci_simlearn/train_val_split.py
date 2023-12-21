@@ -8,10 +8,16 @@ from sklearn.model_selection import train_test_split
 def main(
     data_path: str = "/home/tornike/Coding/phd/sosci-simlearn/data/meta_pairs_20231220-135637.jsonl",    
     seed: int = 42,
+    test_size: float = 0.1,
     ):
     assert os.path.isfile(data_path)
     df = pd.read_json(data_path, lines=True)
-    train_X, val_X = train_test_split(df, stratify=df.source, random_state=seed)
+    train_X, val_X = train_test_split(
+        df, 
+        stratify=df.source, 
+        random_state=seed, 
+        test_size=test_size
+    )
 
     train_X.to_json(
         data_path.replace(".json", "_train.json"),
