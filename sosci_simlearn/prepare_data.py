@@ -51,6 +51,9 @@ def make_variable_meta_pairs(meta_id, meta, keys, ignore_pairs):
                 k2_content = clean_str(k2_content)
 
             if k1_content and k2_content and k1_content != k2_content:
+                if len(k1_content.split(" ")) < 3 or len(k2_content.split(" ")) < 3:
+                    continue
+                
                 pairs_dict.append({"source": meta_id.split("_")[0], "variable_id": meta_id, "sentence_1": k1_content, "sentence_2": k2_content})
                 pairs.append((k1, k2))
     return pairs_dict
@@ -60,7 +63,7 @@ def main(
     data_path: str = "/home/tornike/Coding/phd/inception-pre-annotation/sosci-data-pipeline/meta_08-12-23_20-40-00.jsonl",
     # meta_keys: str = "variable_label,question_text,question_text_en,sub_question,item_category,topic,topic_en",
     meta_keys: str = "variable_label,question_text,item_category,topic",
-    ignore_meta_key_pairs: str = "sub_question:item_category",
+    ignore_meta_key_pairs: str = "sub_question:item_category,question_text:item_category",
     output_dir: str = "/home/tornike/Coding/phd/sosci-simlearn/data",
     ):
     meta_keys = meta_keys.split(",")
