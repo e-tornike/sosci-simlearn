@@ -6,6 +6,7 @@ import datetime
 import time
 from tqdm import tqdm
 import re
+import pandas as pd
 
 
 def load_jsonl(path):
@@ -60,16 +61,24 @@ def make_variable_meta_pairs(meta_id, meta, keys, ignore_pairs):
 
 
 def main(
-    data_path: str = "/home/tornike/Coding/phd/inception-pre-annotation/sosci-data-pipeline/meta_08-12-23_20-40-00.jsonl",
+    data_path: str = "/home/tornike/Coding/phd/inception-pre-annotation/sosci-data-pipeline/filtered_meta_08-12-23_20-40-00.jsonl",
     # meta_keys: str = "variable_label,question_text,question_text_en,sub_question,item_category,topic,topic_en",
     meta_keys: str = "variable_label,question_text,item_category,topic",
     ignore_meta_key_pairs: str = "sub_question:item_category,question_text:item_category",
     output_dir: str = "/home/tornike/Coding/phd/sosci-simlearn/data",
+    # val_path: str = "/home/tornike/Coding/phd/inception-pre-annotation/inception/vadis-prolific-3_project_2023-12-09_1251/vadis-prolific-3_project_2023-12-09_1251_12:53:08_val_en.tsv",
+    # test_path: str = "/home/tornike/Coding/phd/inception-pre-annotation/inception/vadis-prolific-3_project_2023-12-09_1251/vadis-prolific-3_project_2023-12-09_1251_12:53:08_test.tsv",
     ):
     meta_keys = meta_keys.split(",")
     ignore_meta_key_pairs = [k.split(":") for k in ignore_meta_key_pairs.split(",")]
 
     data = load_jsonl(data_path)
+
+    # val_df = pd.read_csv(val_path, sep="\t")
+    # test_df = pd.read_csv(test_path, sep="\t")
+    # df = pd.concat([val_df, test_df])
+    # variables_to_ignore = [v for vs in df["variable"].tolist() for v in vs.split(";") if v]
+    # variables_to_ignore = [v for vs in variables_to_ignore for v in vs.split(",")]
 
     full_meta_pairs = []
     for d in tqdm(data):
