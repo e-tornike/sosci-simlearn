@@ -1,3 +1,4 @@
+import random
 import jsonlines
 from typing import List, Dict
 from torch.utils.data import Dataset
@@ -23,6 +24,9 @@ class SoSciDataset(Dataset):
 
     def __len__(self):
         return len(self.dataset)
+    
+    def sample(self, n):
+        self.dataset = random.sample(self.dataset, n)
 
     @staticmethod
     def read_dataset(dataset_path) -> List[Dict[str, str]]:

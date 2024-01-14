@@ -9,15 +9,12 @@ from pytorch_lightning import seed_everything
 
 from quaterion import Quaterion
 from quaterion.dataset import PairsSimilarityDataLoader
-from quaterion.eval.evaluator import Evaluator
-from quaterion.eval.pair import RetrievalReciprocalRank, RetrievalPrecision
-from quaterion.eval.samplers.pair_sampler import PairSampler
 
 from model import SoSciModel
 from dataset import SoSciDataset
 
 
-def train(model, train_dataset_path, val_dataset_path, params, output_dir=None):
+def train(model, train_dataset_path, val_dataset_path, params, sample_n=0, output_dir=None):
     use_gpu = params.get("cuda", torch.cuda.is_available())
 
     trainer = pl.Trainer(
@@ -30,20 +27,14 @@ def train(model, train_dataset_path, val_dataset_path, params, output_dir=None):
     )
     train_dataset = SoSciDataset(train_dataset_path, obj_a=params.get("obj_a", ""), obj_b=params.get("obj_b", ""))
     val_dataset = SoSciDataset(val_dataset_path, obj_a=params.get("obj_a", ""), obj_b=params.get("obj_b", ""))
+    if sample_n > 0:
+        train_dataset.sample(sample_n)
+
     train_dataloader = PairsSimilarityDataLoader(train_dataset, batch_size=params.get("batch_size", 1024))
     val_dataloader = PairsSimilarityDataLoader(val_dataset, batch_size=params.get("batch_size", 1024))
     Quaterion.fit(model, trainer, train_dataloader, val_dataloader)
     if output_dir:
         model.save_servable(os.path.join(output_dir, "servable"))
-
-    # metrics = {
-    #     "rrk": RetrievalReciprocalRank(),
-    #     "rp@1": RetrievalPrecision(k=1)
-    # }
-    # sampler = PairSampler()
-    # evaluator = Evaluator(metrics, sampler)
-    # results = Quaterion.evaluate(evaluator, val_dataset, model.model)
-    # print(f"results: {results}")
 
 
 def main(
@@ -56,6 +47,7 @@ def main(
     batch_size: int = 1024,
     max_epochs: int = 300,
     output_dir: str = "",
+    sample_n: int = 0,
     ):
     seed_everything(seed, workers=True)
     timestamp = datetime.datetime.fromtimestamp(time.time()).strftime("%Y%m%d-%H%M%S")
@@ -63,16 +55,17 @@ def main(
 
     sosci_model = SoSciModel(model_name=model_name)
     train(
-        sosci_model, 
-        train_path, 
-        val_path, 
-        {
+        model=sosci_model, 
+        train_dataset_path=train_path, 
+        val_dataset_path=val_path, 
+        params={
             "obj_a": obj_a, 
             "obj_b": obj_b, 
             "batch_size": batch_size,
             "max_epochs": max_epochs,
         },
-        output_dir,
+        sample_n=sample_n,
+        output_dir=output_dir,
     )
 
 
