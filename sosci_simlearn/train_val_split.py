@@ -6,7 +6,7 @@ from sklearn.model_selection import train_test_split
 
 
 def main(
-    data_path: str = "/home/tornike/Coding/phd/sosci-simlearn/data/meta_pairs_20231220-135637.jsonl",    
+    data_path: str = "/home/tornike/Coding/phd/sosci-simlearn/data/filtered_meta_pairs_20240113-122949.jsonl",    
     seed: int = 42,
     test_size: float = 0.1,
     ):
