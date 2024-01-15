@@ -16,10 +16,11 @@ from encoder import SoSciEncoder
 
 
 class SoSciModel(TrainableModel):
-    def __init__(self, model_name, lr=10e-5, cache_batch_size=256, *args, **kwargs):
+    def __init__(self, model_name, lr=10e-5, cache_batch_size=256, cache_folder=None, *args, **kwargs):
         self.model_name = model_name
         self.lr = lr
         self.cache_batch_size = cache_batch_size
+        self.cache_folder = cache_folder
         super().__init__(*args, **kwargs)
 
     def configure_metrics(self):
@@ -45,7 +46,7 @@ class SoSciModel(TrainableModel):
         return MultipleNegativesRankingLoss(symmetric=True)
 
     def configure_encoders(self) -> Union[Encoder, Dict[str, Encoder]]:
-        pre_trained_model = SentenceTransformer(self.model_name)
+        pre_trained_model = SentenceTransformer(self.model_name, cache_folder=self.cache_folder)
         transformer: Transformer = pre_trained_model[0]
         pooling: Pooling = pre_trained_model[1]
         encoder = SoSciEncoder(transformer, pooling)

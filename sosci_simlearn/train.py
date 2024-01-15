@@ -49,13 +49,17 @@ def main(
     max_epochs: int = 300,
     output_dir: str = "",
     log_dir: str = "",
+    cache_folder: str = "",
     sample_n: int = 0,
     ):
+    if not cache_folder:
+        cache_folder = None
+
     seed_everything(seed, workers=True)
     timestamp = datetime.datetime.fromtimestamp(time.time()).strftime("%Y%m%d-%H%M%S")
     output_dir = os.path.join(output_dir, model_name.replace("/", ":")+f"_epochs={max_epochs}_{timestamp}")
 
-    sosci_model = SoSciModel(model_name=model_name)
+    sosci_model = SoSciModel(model_name=model_name, cache_folder=cache_folder)
     train(
         model=sosci_model, 
         train_dataset_path=train_path, 
