@@ -14,7 +14,7 @@ from model import SoSciModel
 from dataset import SoSciDataset
 
 
-def train(model, train_dataset_path, val_dataset_path, params, sample_n=0, output_dir=None):
+def train(model, train_dataset_path, val_dataset_path, params, sample_n=0, output_dir=None, log_dir=None):
     use_gpu = params.get("cuda", torch.cuda.is_available())
 
     trainer = pl.Trainer(
@@ -24,6 +24,7 @@ def train(model, train_dataset_path, val_dataset_path, params, sample_n=0, outpu
         log_every_n_steps=params.get("log_every_n_steps", 10),
         gpus=int(use_gpu),
         num_sanity_val_steps=2,
+        default_root_dir=log_dir,
     )
     train_dataset = SoSciDataset(train_dataset_path, obj_a=params.get("obj_a", ""), obj_b=params.get("obj_b", ""))
     val_dataset = SoSciDataset(val_dataset_path, obj_a=params.get("obj_a", ""), obj_b=params.get("obj_b", ""))
@@ -47,6 +48,7 @@ def main(
     batch_size: int = 1024,
     max_epochs: int = 300,
     output_dir: str = "",
+    log_dir: str = "",
     sample_n: int = 0,
     ):
     seed_everything(seed, workers=True)
@@ -66,6 +68,7 @@ def main(
         },
         sample_n=sample_n,
         output_dir=output_dir,
+        log_dir=log_dir,
     )
 
 
