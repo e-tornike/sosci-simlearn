@@ -14,7 +14,15 @@ from model import SoSciModel
 from dataset import SoSciDataset
 
 
-def train(model, train_dataset_path, val_dataset_path, params, sample_n=0, output_dir=None, log_dir=None):
+torch.set_float32_matmul_precision('medium')
+
+
+FORMATS = {
+    "intfloat/multilingual-e5-base": "query: [SENTENCE]"
+}
+
+
+def train(model, train_dataset_path, val_dataset_path, params, sample_n=0, output_dir=None, log_dir=None, format=None):
     use_gpu = params.get("cuda", torch.cuda.is_available())
 
     trainer = pl.Trainer(
@@ -26,8 +34,8 @@ def train(model, train_dataset_path, val_dataset_path, params, sample_n=0, outpu
         num_sanity_val_steps=2,
         default_root_dir=log_dir,
     )
-    train_dataset = SoSciDataset(train_dataset_path, obj_a=params.get("obj_a", ""), obj_b=params.get("obj_b", ""))
-    val_dataset = SoSciDataset(val_dataset_path, obj_a=params.get("obj_a", ""), obj_b=params.get("obj_b", ""))
+    train_dataset = SoSciDataset(train_dataset_path, obj_a=params.get("obj_a", ""), obj_b=params.get("obj_b", ""), format=format)
+    val_dataset = SoSciDataset(val_dataset_path, obj_a=params.get("obj_a", ""), obj_b=params.get("obj_b", ""), format=format)
     if sample_n > 0:
         train_dataset.sample(sample_n)
 
@@ -42,7 +50,7 @@ def main(
     train_path: str = "",
     val_path: str = "",
     seed: int = 42,
-    model_name: str = "sentence-transformers/distiluse-base-multilingual-cased-v2",
+    model_name: str = "FacebookAI/xlm-roberta-base",
     obj_a: str = "sentence_1",
     obj_b: str = "sentence_2",
     batch_size: int = 1024,
@@ -54,6 +62,10 @@ def main(
     ):
     if not cache_folder:
         cache_folder = None
+    if model_name in FORMATS:
+        format = FORMATS[model_name]
+    else:
+        format = None
 
     seed_everything(seed, workers=True)
     timestamp = datetime.datetime.fromtimestamp(time.time()).strftime("%Y%m%d-%H%M%S")
@@ -73,6 +85,7 @@ def main(
         sample_n=sample_n,
         output_dir=output_dir,
         log_dir=log_dir,
+        format=format,
     )
 
 
