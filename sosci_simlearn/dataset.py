@@ -8,8 +8,8 @@ from quaterion.dataset.similarity_samples import SimilarityPairSample
 class SoSciDataset(Dataset):
     """Dataset class to process .jsonl files with FAQ from popular cloud providers."""
 
-    def __init__(self, dataset_path, obj_a, obj_b):
-        self.dataset: List[Dict[str, str]] = self.read_dataset(dataset_path)
+    def __init__(self, dataset_path, obj_a, obj_b, format=None):
+        self.dataset: List[Dict[str, str]] = self.read_dataset(dataset_path, format)
         self.obj_a = obj_a
         self.obj_b = obj_b
 
@@ -29,10 +29,12 @@ class SoSciDataset(Dataset):
         self.dataset = random.sample(self.dataset, n)
 
     @staticmethod
-    def read_dataset(dataset_path) -> List[Dict[str, str]]:
+    def read_dataset(dataset_path, format=None) -> List[Dict[str, str]]:
         """Read jsonl-file into a memory."""
         data = []
         with jsonlines.open(dataset_path, "r") as reader:
             for obj in reader:
+                if format:
+                    obj = {k: format.replace("[SENTENCE]", v) if "sentence" in k else v for k,v in obj.items()}
                 data.append(obj)
         return data
